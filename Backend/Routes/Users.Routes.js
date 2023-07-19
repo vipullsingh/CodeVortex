@@ -1,61 +1,76 @@
 const { Blacklist } = require("../Models/blacklist.model");
-const { UserModel } = require("../Models/user.model");
 const bcrypt = require("bcrypt");
+const express = require('express');
+const app = express();
+app.use(express.json());
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { verify } = require("../middleware/jwtAuth.middleware");
 const UserRoute = require("express").Router();
 require("dotenv").config();
+const { validationResult } = require('express-validator');
+const User = require('../Models/user.model');
 
 UserRoute.post("/register", async (req, res) => {
   try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const { name, email, password } = req.body;
-    const isUserExist = await UserModel.findOne({ email });
-    // console.log(isUserExist);
 
-    console.log(isUserExist);
-    if (isUserExist) {
-      return res.send({
-        msg: "user already exist in the database try with new email",
-      });
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
     }
 
-    const hash = bcrypt.hashSync(password, 8);
-    // console.log(hash);
-    const user = new UserModel({ name, email, password: hash });
-    // console.log(user);
-    await user.save();
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.send({ msg: "user has been registered successfully" });
+    // Create a new user
+    const newUser = new User({ name, email, password: hashedPassword });
+    await newUser.save();
+
+    res.status(201).json({ message: 'Signup successful' });
   } catch (error) {
-    res.send({ msg: error.msg });
+    console.error('Error signing up:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
+
+
 UserRoute.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-    const isUserExist = await UserModel.findOne({ email });
-
-    if (!isUserExist) {
-      return res.status(401).send({ msg: "invalid username or password" });
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    var result = bcrypt.compareSync(password, isUserExist.password);
-    // console.log(result);
-    if (!result) {
-      return res.status(401).send({ msg: "invalid username or password" });
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const Accesstoken = jwt.sign(
-      { userID: isUserExist._id },
-      process.env.secretKey
-    );
-    console.log(Accesstoken);
+    // Generate a JWT token
+    const token = jwt.sign({ userId: user._id }, process.env.secretkey, { expiresIn: '1h' });
 
-    res.send({ msg: "login successfull", user: isUserExist, Accesstoken });
+    res.status(200).json({ message: 'Login successful', user, token });
   } catch (error) {
-    res.send({ msg: error.msg });
+    console.error('Error logging in:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
+
+
+
+
 UserRoute.get("/logout", async (req, res) => {
   // we wil get the accesstoken and refreshtoken in req.headers with the respective name;
   try {
