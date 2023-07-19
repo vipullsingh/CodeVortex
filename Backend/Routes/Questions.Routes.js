@@ -3,7 +3,6 @@ const { Configuration, OpenAIApi } = require("openai");
 require("dotenv").config();
 const QuestionRoute = express.Router();
 const { HistoryModel } = require("../Models/history.model");
-const { verify } = require("../middleware/jwtAuth.middleware");
 
 //OpenAI Config
 const configuration = new Configuration({
@@ -57,21 +56,17 @@ QuestionRoute.post("/rating", async (req, res) => {
   //     "answer1":"Put your answer 1 here",
   //     "answer2":"Put your answer 2 here"
   // }
-
-  if (!req.body.question2) {
-    return res.status(404).json({ msg: "Something went wrong!" });
-  }
   const obj = [
     {
-      question: req.body.question1.question,
-      answer: req.body.question1.answer,
+      question:  req.body.question1.question,
+      answer:req.body.question1.answer,
     },
     {
-      question: req.body.question2.question,
+      question:  req.body.question2.question,
       answer: req.body.question2.answer,
     },
   ];
-
+  
   let objStr = JSON.stringify(obj);
   // Extract Question 1 and Answer 1 from req.body
   // const question1 = req.body.question1.question;
@@ -105,6 +100,7 @@ QuestionRoute.post("/rating", async (req, res) => {
 
     `;
 
+
   try {
     const response = await openai.createCompletion({
       model: "text-davinci-003",
@@ -119,12 +115,7 @@ QuestionRoute.post("/rating", async (req, res) => {
     console.log(data);
 
     //Saving data in History collection here
-    console.log("USER ID", req.body);
-    const history = new HistoryModel({
-      body: data,
-      userID: req.body.id,
-      date: Date(),
-    });
+    const history = new HistoryModel({ body: data, userID: req.body.userid });
     await history.save();
 
     return res.status(200).json({
