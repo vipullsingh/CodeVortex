@@ -4,8 +4,8 @@ Code Vortex is an innovative self-interview prep platform harnessing the power o
 
 
 ## Deployed Links
-https://code-vertex.netlify.app  **(Netlify)** \
-https://tiny-pear-jaguar-veil.cyclic.app **(Cyclic)** 
+https://interview-stimulation-app.vercel.app/  **(Vercel)** \
+https://codevortex-backend.onrender.com/ **(Render)** 
 
 
 ## Features
@@ -39,9 +39,9 @@ https://tiny-pear-jaguar-veil.cyclic.app **(Cyclic)**
 
 ## Authors
 
+- [@vipullsingh](https://github.com/vipullsingh)
 - [@abhimanyulp](https://github.com/abhimanyulp)
 - [@GRAviTY-GAGAN](https://github.com/GRAviTY-GAGAN)
-- [@vipullsingh](https://github.com/vipullsingh)
 - [@Sonu-Shettiyar](https://github.com/Sonu-Shettiyar)
 - [@CodingDemon1](https://github.com/CodingDemon1)
 - [@senapathisowjanya](https://github.com/senapathisowjanya)
