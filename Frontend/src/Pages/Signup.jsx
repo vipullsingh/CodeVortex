@@ -5,7 +5,6 @@ import { Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // import {useNavigate} fro/m
-const baseUrl = "localhost:5000";
 const Signup = () => {
   const url =
     process.env.NODE_ENV == "development"
@@ -29,9 +28,9 @@ const Signup = () => {
       axios
         .post(`${url}/user/register`, payload)
         .then((res) => {
-          if (res.data.msg === "user has been registered successfully") {
+          if (res.data.message === "Signup successful") {
             toast({
-              title: res.data.msg,
+              title: res.data.message,
               status: "success",
               duration: 9000,
               isClosable: true,
@@ -41,7 +40,7 @@ const Signup = () => {
             navigate("/");
           } else {
             toast({
-              title: res.data.msg,
+              title: res.data.message,
               status: "warning",
               duration: 9000,
               isClosable: true,
